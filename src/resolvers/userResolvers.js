@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const generateToken = require("../utils/generateToken");
 
 const resolvers = {
   Query: {
@@ -24,9 +25,14 @@ const resolvers = {
       try {
         const user = new User({ name, email, password });
         await user.save();
-        return user;
+
+        const token = generateToken(user._id);
+        return {
+          token,
+          user,
+        };
       } catch (err) {
-        throw new Error("Error creating user");
+        throw new Error("Error creating user: " + err.message);
       }
     },
     updateUser: async (_, { id, name, email, password }) => {
