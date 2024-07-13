@@ -1,62 +1,33 @@
-const User = require("../models/User");
-const generateToken = require("../utils/generateToken");
+const {
+  deleteUser,
+  updateUser,
+  register,
+  login,
+  getAllUsers,
+  getUserById,
+} = require("../controllers/authController");
 
 const resolvers = {
   Query: {
     getUser: async (_, { id }) => {
-      try {
-        const user = await User.findById(id);
-        return user;
-      } catch (err) {
-        throw new Error("Error retrieving user");
-      }
+      return await getUserById(id);
     },
     getUsers: async () => {
-      try {
-        const users = await User.find();
-        return users;
-      } catch (err) {
-        throw new Error("Error retrieving users");
-      }
+      return await getAllUsers();
     },
   },
   Mutation: {
+    login: async (_, { email, password }) => {
+      return await login(email, password);
+    },
     createUser: async (_, { name, email, password }) => {
-      try {
-        const user = new User({ name, email, password });
-        await user.save();
-
-        const token = generateToken(user._id);
-        return {
-          token,
-          user,
-        };
-      } catch (err) {
-        throw new Error("Error creating user: " + err.message);
-      }
+      return await register({ name, email, password });
     },
     updateUser: async (_, { id, name, email, password }) => {
-      try {
-        const user = await User.findByIdAndUpdate(
-          id,
-          { name, email, password },
-          { new: true }
-        );
-        return user;
-      } catch (err) {
-        throw new Error("Error updating user");
-      }
+      return await updateUser(id, { name, email, password });
     },
     deleteUser: async (_, { id }) => {
-      try {
-        const user = await User.findByIdAndDelete(id);
-        if (!user) {
-          throw new Error("User not found");
-        }
-        return user;
-      } catch (err) {
-        throw new Error("Error deleting user");
-      }
+      return await deleteUser(id);
     },
   },
 };
