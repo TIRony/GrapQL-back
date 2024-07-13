@@ -1,6 +1,7 @@
-const { buildSchema } = require('graphql');
+const { makeExecutableSchema } = require('@graphql-tools/schema');
+const { gql } = require('graphql-tag');
 
-const schema = buildSchema(`
+const typeDefs = gql`
   type User {
     id: ID!
     name: String!
@@ -18,7 +19,13 @@ const schema = buildSchema(`
     updateUser(id: ID!, name: String, email: String, password: String): User
     deleteUser(id: ID!): User
   }
-`);
+`;
 
-// module.exports = schema;
+const resolvers = require('../resolvers/userResolvers');
+
+const schema = makeExecutableSchema({
+  typeDefs,
+  resolvers,
+});
+
 module.exports = schema;

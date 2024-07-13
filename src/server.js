@@ -1,25 +1,21 @@
 const express = require("express");
-const connectDB = require("./config");
+const connectDB = require("./config/db");
 const cors = require("cors");
 const { createHandler } = require("graphql-http/lib/use/express");
-const schema = require("./routes/graphqlRoutes");
+const schema = require("./schema/authSchema");
 const { ruruHTML } = require("ruru/server");
-const resolvers = require("./resolvers/userResolvers");
+const routes = require("./routes");
 require("dotenv").config();
 
 const app = express();
 connectDB();
 
 app.use(cors());
+app.use(express.json());
 
-app.use(
-  "/graphql",
-  createHandler({
-    schema,
-    rootValue: resolvers,
-    graphiql: true,
-  })
-);
+app.use("/graphql", createHandler({ schema, graphiql: true }));
+
+routes(app);
 
 app.get("/", (_req, res) => {
   res.type("html");
